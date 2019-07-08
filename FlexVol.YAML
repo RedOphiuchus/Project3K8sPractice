@@ -1,0 +1,42 @@
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kv
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata: 
+  labels: 
+    app: flextest
+  name: felxtest
+  namespace: kv
+spec: 
+  template: 
+    metadata: 
+      labels: 
+        app: flextest
+    spec: 
+      tolerations: 
+      containers: 
+      - name: flexvol-driver-installer
+        image: "mcr.microsoft.com/k8s/flexvolume/keyvault-flexvolume:v0.0.10"
+        imagePullPolicy: Always
+        resources: 
+          requests: 
+            cpu: 50m
+            memory: 100Mi
+          limits: 
+            cpu: 0.10
+            memory: 200Mi
+        env: 
+        # place Target loaction and volume mount locations
+        - name: TARGET_DIR
+          value: "/etc/kubernetes/volumeplugins"
+        volumeMounts: 
+        - mountPath: "/etc/kubernetes/volumeplugins"
+          name: volplugins
+      volumes:
+      - hostPath: 
+          path: "/etc/kubernetes/volumeplugins"
+        name: volplugins
